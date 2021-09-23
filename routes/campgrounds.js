@@ -3,6 +3,7 @@ const Router = express.Router()
 const WrapperAsync = require('../utils/WrapperAsync')
 const ExpressError = require('../utils/ExpressError')
 const Campground = require('../models/campgroundmodel')
+const mongoose = require('mongoose');
 const {campgroundSchema} = require('../ValidationSchemas')
 
 const ValidateCamp = function (req, res, next) {
@@ -15,6 +16,14 @@ const ValidateCamp = function (req, res, next) {
     next()
 }
 
+const ValidateId = function(req,res,next){
+    if(mongoose.isValidObjectId(req.params.id))
+    next();
+    else{
+        req.flash('error','Invalid campground Id');
+        res.redirect('/campgrounds');
+    }
+}
 
 Router.get('/',WrapperAsync(async (req,res,next) =>{
     const camps = await Campground.find({});
@@ -31,10 +40,13 @@ Router.get('/new',(req,res)=>{
     res.render('campgrounds/new');
 });
     
-Router.get('/:id',WrapperAsync( async (req,res) =>{
+Router.get('/:id', ValidateId ,WrapperAsync( async (req,res) =>{
 
     const id = req.params.id;
     let camp = await Campground.findById(id).populate('reviews');
+    if(!camp){
+        req.flash('error', 'Campground not found' )
+    }
     res.render('campgrounds/details',{camp})
 
 }));

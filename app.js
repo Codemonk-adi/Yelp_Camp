@@ -6,8 +6,9 @@ const ReviewRouter = require('./routes/reviews')
 const methods = require('method-override');
 const ejsMate = require('ejs-mate');
 const ExpressError = require('./utils/ExpressError')
-
-
+const session = require('express-session');
+const flash = require('express-flash');
+const favicon = path.join( __dirname,'favicon.ico');
 
 const connect  = mongoose.connect('mongodb://localhost:27017/Yelp')
 const db = mongoose.connection;
@@ -24,13 +25,29 @@ app.engine('ejs',ejsMate);
 app.use(express.urlencoded({extended:true}));
 app.use(methods('_method'));
 
+const sessionConfig = {
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+    SameSite : 'strict'
+}
+app.use(session(sessionConfig));
+app.use(flash());
+app.use((req,res,next)=>{
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+})
+
 app.set('view engine','ejs');
 app.set('views',path.join(__dirname,"views"));
 
 app.get('/',(req,res) =>{
     res.render('home');
 })
-
+app.get('/favicon.ico',(req,res)=>{
+    res.sendFile(favicon);
+})
 app.use('/campgrounds',CampRouter);
 app.use('/campgrounds/:campid/reviews',ReviewRouter);
 

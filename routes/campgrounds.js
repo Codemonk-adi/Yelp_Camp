@@ -33,6 +33,7 @@ Router.post('/', ValidateCamp,WrapperAsync( async (req,res) =>{
     const camp = new Campground(req.body.campground)
     await camp.save();
     const id = camp._id;
+    req.flash('success', `Successfully Created ${camp.title}`);
     res.redirect('/campgrounds/'+id)
 }));
 
@@ -54,13 +55,17 @@ Router.get('/:id', ValidateId ,WrapperAsync( async (req,res) =>{
 Router.post('/:id',WrapperAsync( async (req,res) =>{
     const id = req.params.id;
     let camp = await Campground.findByIdAndUpdate(id,req.body.campground,{new:true});
+    req.flash('success',`Successfully Updated ${camp.title}`)
     res.render('campgrounds/details',{camp})
+
 }));
 
 Router.delete('/:id',WrapperAsync( async (req,res) =>{
     const id = req.params.id;
     await Campground.findByIdAndDelete(id);
+    req.flash('success',`Successfully deleted Campground!`);
     res.redirect('/campgrounds');
+
 }));
 
 Router.get('/:id/edit',async (req,res) =>{

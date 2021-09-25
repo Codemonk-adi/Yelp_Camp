@@ -25,11 +25,19 @@ const ValidateId = function(req,res,next){
     }
 }
 
+const isLoggedIn = function(req,res,next){
+    if(!req.isAuthenticated()){
+        req.flash('error','Identify Yourself Nigga');
+        res.redirect('/login');
+    }else
+    next();
+}
 Router.get('/',WrapperAsync(async (req,res,next) =>{
     const camps = await Campground.find({});
     res.render('campgrounds/index',{camps})
 }))
-Router.post('/', ValidateCamp,WrapperAsync( async (req,res) =>{
+Router.post('/',isLoggedIn,ValidateCamp,WrapperAsync( async (req,res) =>{
+
     const camp = new Campground(req.body.campground)
     await camp.save();
     const id = camp._id;
@@ -52,7 +60,7 @@ Router.get('/:id', ValidateId ,WrapperAsync( async (req,res) =>{
 
 }));
 
-Router.post('/:id',WrapperAsync( async (req,res) =>{
+Router.post('/:id',isLoggedIn,ValidateCamp,WrapperAsync( async (req,res) =>{
     const id = req.params.id;
     let camp = await Campground.findByIdAndUpdate(id,req.body.campground,{new:true});
     req.flash('success',`Successfully Updated ${camp.title}`)
@@ -60,7 +68,7 @@ Router.post('/:id',WrapperAsync( async (req,res) =>{
 
 }));
 
-Router.delete('/:id',WrapperAsync( async (req,res) =>{
+Router.delete('/:id',isLoggedIn,WrapperAsync( async (req,res) =>{
     const id = req.params.id;
     await Campground.findByIdAndDelete(id);
     req.flash('success',`Successfully deleted Campground!`);

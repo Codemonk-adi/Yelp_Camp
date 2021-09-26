@@ -1,86 +1,22 @@
 const express = require('express')
 const Router = express.Router()
 const WrapperAsync = require('../utils/WrapperAsync')
-const ExpressError = require('../utils/ExpressError')
-const Campground = require('../models/campgroundmodel')
-const mongoose = require('mongoose');
-const {campgroundSchema} = require('../ValidationSchemas')
+const {isLoggedIn, ValidateCamp,ValidateId,isOwner} = require('../middleware');
+const Controller = require('../controllers/campground')
 
-const ValidateCamp = function (req, res, next) {
-    const { error } = campgroundSchema.validate(req.body);
-    if(error){
-        const msg = error.details.map(err => err.message).join(',')
-        throw new ExpressError(msg,404);
-    }
-    else
-    next()
-}
 
-const ValidateId = function(req,res,next){
-    if(mongoose.isValidObjectId(req.params.id))
-    next();
-    else{
-        req.flash('error','Invalid campground Id');
-        res.redirect('/campgrounds');
-    }
-}
+Router.route('/')
+    .get(WrapperAsync(Controller.index))
+    .post(isLoggedIn,ValidateCamp,WrapperAsync(Controller.createCampground));
 
-const isLoggedIn = function(req,res,next){
-    if(!req.isAuthenticated()){
-        req.flash('error','Identify Yourself Nigga');
-        res.redirect('/login');
-    }else
-    next();
-}
-Router.get('/',WrapperAsync(async (req,res,next) =>{
-    const camps = await Campground.find({});
-    res.render('campgrounds/index',{camps})
-}))
-Router.post('/',isLoggedIn,ValidateCamp,WrapperAsync( async (req,res) =>{
-
-    const camp = new Campground(req.body.campground)
-    await camp.save();
-    const id = camp._id;
-    req.flash('success', `Successfully Created ${camp.title}`);
-    res.redirect('/campgrounds/'+id)
-}));
-
-Router.get('/new',(req,res)=>{
-    res.render('campgrounds/new');
-});
+Router.get('/new',isLoggedIn,Controller.newForm);
     
-Router.get('/:id', ValidateId ,WrapperAsync( async (req,res) =>{
+Router.route('/:id')
+    .get(ValidateId ,WrapperAsync(Controller.renderDetails))
+    .post(isLoggedIn,ValidateCamp,isOwner,WrapperAsync(Controller.editCampground))
+    .delete(isLoggedIn,isOwner,WrapperAsync(Controller.deleteCampground));
 
-    const id = req.params.id;
-    let camp = await Campground.findById(id).populate('reviews');
-    if(!camp){
-        req.flash('error', 'Campground not found' )
-    }
-    res.render('campgrounds/details',{camp})
-
-}));
-
-Router.post('/:id',isLoggedIn,ValidateCamp,WrapperAsync( async (req,res) =>{
-    const id = req.params.id;
-    let camp = await Campground.findByIdAndUpdate(id,req.body.campground,{new:true});
-    req.flash('success',`Successfully Updated ${camp.title}`)
-    res.render('campgrounds/details',{camp})
-
-}));
-
-Router.delete('/:id',isLoggedIn,WrapperAsync( async (req,res) =>{
-    const id = req.params.id;
-    await Campground.findByIdAndDelete(id);
-    req.flash('success',`Successfully deleted Campground!`);
-    res.redirect('/campgrounds');
-
-}));
-
-Router.get('/:id/edit',async (req,res) =>{
-    const id = req.params.id;
-    let camp = await Campground.findById(id);
-    res.render('campgrounds/edit',{camp})
-});
+Router.get('/:id/edit',isLoggedIn,isOwner,WrapperAsync(Controller.renderEditForm));
 
 
 module.exports = Router;

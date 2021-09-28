@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YelpCamp</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-
+    <link rel="stylesheet" href="/starability.css">
+    <!-- <link href="https://api.mapbox.com/mapbox-gl-js/v2.4.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.4.1/mapbox-gl.js"></script> -->
 </head>
 <body class="d-flex flex-column min-vh-100">
     <!-- <div class="alert alert-success" role="alert">
@@ -22,20 +24,72 @@
     <%- include('../partials/footer') %> 
 </body>
 <script>
+// Example starter JavaScript for disabling form submissions if there are invalid fields
+    (function () {
+    'use strict'
+
     // Fetch all the forms we want to apply custom Bootstrap validation styles to
-const forms = document.querySelectorAll('.validation-required')
+    var forms = document.querySelectorAll('.validation-required')
+    var limited = []
+    for(let i=0;i<=10;i++){
+        const dom = document.querySelectorAll(`.validation-required-limit-${i}`);
+        if(dom.length){
+            limited.push({dom,limit:i});
+        }
+    }
+    console.dir(limited)
+    for(let i =0;i<limited.length;i++){
+        Array.prototype.slice.call(limited[i].dom)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+            const input_file = form.querySelector('input[type=file');
+            input_file.setCustomValidity("");
+            if(!form.checkValidity()){
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            if (input_file.files.length > limited[i].limit ){
+                input_file.setCustomValidity("Too Many Files")
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+            }, false)
+        })
+    }
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+        }
 
-// Loop over them and prevent submission
-Array.from(forms)
-.forEach(function (form) {
-form.addEventListener('submit', function (event) {
-if (!form.checkValidity()) {
-    event.preventDefault()
-    event.stopPropagation()
-}
+        form.classList.add('was-validated')
+        }, false)
+    })
+    })()
+// Array.from(upload_limit_forms)
+// .forEach(function (form) {
+//     console.log('here')
+//     for(var entry of form.classList.values()){
+//         if(entry.search('upload-limit-')!=-1)
+//             max_files = entry[13];
+//     }
+//     console.log(max_files);
+//     form.addEventListener('submit', function (event) {
+//         const input = form.querySelector('input[type=file]')
+//         console.log(input.files.length);
+//         input.setCustomValidity("");
+//         if (!form.checkValidity() || input.files.length > max_files) {
+//             input.setCustomValidity("Max_length_breached");
+//             event.preventDefault()
+//             event.stopPropagation()
+//         }
+//         form.classList.add('was-validated')
+//     }, false)
+// });
 
-form.classList.add('was-validated')
-}, false)
-})
 </script>
 </html>

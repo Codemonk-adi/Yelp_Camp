@@ -3,12 +3,34 @@ const { func } = require('joi');
 const mongoose = require('mongoose');
 const Review = require('./Reviewmodel');
 
+const imageSchema = new mongoose.Schema({
+    url:String,
+    filename:String
+})
+
+imageSchema.virtual('thumbnail').get(function (){
+    return this.url.replace('/upload','/upload/w_200');
+})
+
 const campGroundSchema = new mongoose.Schema({
     title:String,
+    geometry: {
+        type: {
+            type: String,
+            enum: ['Point'], 
+            required: true
+        },
+        coordinates: {
+            type: [Number],
+            required: true
+        }
+    },
     location:String,
     price:Number,   
     description:String,
-    image:String,
+    images:[
+        imageSchema
+    ],
     author:{
         type: mongoose.Schema.Types.ObjectId,
         ref:'User'

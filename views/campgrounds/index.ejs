@@ -5,7 +5,8 @@
             <div class="card">
                 <div class="row">
                     <div class="col-md-4">
-                        <img class="img-fluid" src="<%= camp.image %> " alt="">
+                        <% console.log(camp) %>
+                        <img class="img-fluid" src="<%= camp.images[0].url %> " alt="">
                     </div>
                     <div class="col-md-8">
                         <h5 class="card-title"><%= camp.title %> </h5>

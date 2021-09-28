@@ -1,3 +1,8 @@
+if (process.env.NODE_ENV !== "production") {
+    require('dotenv').config();
+}
+
+
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -35,7 +40,8 @@ const sessionConfig = {
     secret: 'keyboard cat',
     resave: false,
     saveUninitialized: true,
-    SameSite : 'strict'
+    SameSite : 'strict',
+    MaxAge: 1000*60*60*24
 }
 app.use(session(sessionConfig));
 app.use(flash());

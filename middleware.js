@@ -7,7 +7,13 @@ const ExpressError = require('./utils/ExpressError')
 
 
 module.exports.ValidateCamp = function (req, res, next) {
-    const { error } = campgroundSchema.validate(req.body);
+    let campground = {...req.body.campground};
+    if(req.files){
+    const images = req.files.map(f=>({url:f.path,filename:f.filename}));
+    campground = {...req.body.campground,images};
+    }
+    console.log(req.body)
+    const { error } = campgroundSchema.validate({campground});
     if(error){
         const msg = error.details.map(err => err.message).join(',')
         throw new ExpressError(msg,404);

@@ -2,7 +2,7 @@
     <div class="row">
         <h1 class="text-center">Welcome Aboard!</h1>
         <div class="col-md-6 offset-md-3">
-            <form action="/campgrounds" method="POST" novalidate class="validation-required">
+            <form action="/campgrounds" method="POST" novalidate class="validation-required-limit-10" enctype="multipart/form-data"> 
                 <div class="mb-3">
                     <label class="form-label" for="title" >Title</label>
                     <input class="form-control" type="text" name="campground[title]" id="title" required>
@@ -23,7 +23,10 @@
                 </div>
                 <div class="mb-3">
                 <label class="form-label" for="image">Image URL</label>
-                <input class="form-control" type="text" name="campground[image]" id="image" required>
+                <input class="form-control" type="file" name="images" id="image" multiple>
+                <div class="invalid-feedback">
+                    Maximum of 3 files allowed!
+                </div>
                 </div>
                 <button class="btn btn-danger">Submit</button>
             </form>

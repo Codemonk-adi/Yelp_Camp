@@ -104,10 +104,11 @@ store.on('error', function(e) {
     console.log("Session store error", e);
 })
 
+const secret = process.env.session_secret
 const sessionConfig = {
     store,
     name: 'notso',
-    secret: 'keyboard cat',
+    secret,
     resave: false,
     saveUninitialized: true,
     SameSite: 'strict',

@@ -27,7 +27,7 @@ const seedDB = async () => {
             }],
             geometry:{
                 type: "Point",
-                coordinates : [cities[rand406.lng],cities[rand406.lat]]
+                coordinates : [cities[rand406].lng,cities[rand406].lat]
             },
             price,
             author:"614ee1a0d5a53a7e1a1063d8",

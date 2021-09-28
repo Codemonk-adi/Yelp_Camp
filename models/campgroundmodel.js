@@ -1,6 +1,7 @@
 
 const { func } = require('joi');
 const mongoose = require('mongoose');
+const { campgroundSchema } = require('../ValidationSchemas');
 const Review = require('./Reviewmodel');
 
 const imageSchema = new mongoose.Schema({
@@ -11,7 +12,7 @@ const imageSchema = new mongoose.Schema({
 imageSchema.virtual('thumbnail').get(function (){
     return this.url.replace('/upload','/upload/w_200');
 })
-
+const opts = { toJSON: { virtuals: true } };
 const campGroundSchema = new mongoose.Schema({
     title:String,
     geometry: {
@@ -41,7 +42,11 @@ const campGroundSchema = new mongoose.Schema({
             ref:'review'
         }
     ]
-}) 
+}, opts) 
+
+campGroundSchema.virtual('properties.campLink').get(function (){
+    return `<a href=/campgrounds/${this._id}>${this.title}</a><p>${this.location}</p>`
+})
 
 campGroundSchema.post('findOneAndDelete', async function (doc) {
     if(doc){
